@@ -68,3 +68,6 @@ typings/
 .idea
 .vscode
 .DS_Store
+
+
+backend/venv
