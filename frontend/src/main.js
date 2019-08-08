@@ -5,15 +5,16 @@
  */
 
 // import your own scripts here.
-import * as login from './login.js';
-
+import {setupLogin} from './login.js';
+import {setupFeed} from './feed.js';
 
 // your app must take an apiUrl as an argument --
 // this will allow us to verify your apps behaviour with 
 // different datasets.
 function initApp(apiUrl) {
   // your app initialisation goes here
-  login.setupLogin();
+  setupLogin();
+  setupFeed();
 }
 
 export default initApp;

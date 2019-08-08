@@ -177,9 +177,18 @@ footer > * {
   margin-top: 10px;
   padding-top: 5px;
   padding-bottom: 5px;
+
+  align-items: center;
+  text-align: center;
+  display: flex;
 }
 
+.error-message .error-message-text {
+  text-align: center;
+  width: 100%;
+}
 .error-message i {
-  float: right;
-  display: inline-flex;
+  font-size: 18px;
+  text-align: right;
+  vertical-align: baseline;
 }

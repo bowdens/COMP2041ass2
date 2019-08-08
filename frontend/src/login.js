@@ -1,5 +1,6 @@
 import {applyEventListenerToSelector} from "./general_tools.js";
 import {clearMain, addToMain, postError} from "./main_tools.js";
+import {setError, removeError, clearErrors} from "./errors.js";
 
 function createLoginDiv() {
     let div = document.createElement("div");
@@ -140,19 +141,21 @@ function clickLogin() {
     }
     let password = passwordinput.value;
 
-    verifyLogin(username, password, () => {}, (err) => {
+    verifyLogin(username, password, () => {}, (errors) => {
         let errdiv = document.getElementById("login-error-anchor");
         if (! errdiv) {
             postError("could not find login error anchor to post error " + err);
             return;
         }
-        setError(errdiv, err, "login");
-        console.log(err);
+        for (let error of errors) {
+            setError(errdiv, error, error);
+            console.log("login error: " + error);
+        }
     });
 }
 
 function verifyLogin(username, password, success, failure) {
-    failure("Error logging in: log in not yet implemented");
+    failure(["Error logging in: log in not yet implemented"]);
 }
 
 function toggleLoginPrompt(loginButton) {
@@ -188,89 +191,47 @@ function clickSignup() {
     }
     let repeatpassword = repeatpasswordinput.value;
 
-    verifySignup(username, password, repeatpassword, () => {}, (err) => {
+    verifySignup(username, password, repeatpassword, () => {}, (errors) => {
         let errdiv = document.getElementById("login-error-anchor");
+        clearErrors(errdiv);
         if (! errdiv) {
-            postError("could not find login error anchor to post error " + err);
+            postError("could not find login error anchor to post error " + errors);
             return;
         }
-        setError(errdiv, err, "login-err");
-        console.log(errdiv);
-        console.log(err);
+
+        for (let error of errors) {
+            setError(errdiv, error, error);
+            console.log(error);
+        }
     });
 }
 
-function createError(err, id) {
-    let errdiv = document.createElement("div");
-    errdiv.id = "errormsg-" + id;
-    errdiv.classList.add("error-message");
-
-    let messagediv = document.createElement("div");
-    messagediv.classList.add("error-message-text");
-    messagediv.innerText = err;
-    errdiv.appendChild(messagediv);
-
-    let closeIcon = document.createElement("i");
-    closeIcon.innerText = "close";
-    closeIcon.classList.add("material-icons");
-    closeIcon.addEventListener("click", (ev) => {
-        //console.log(ev);
-        ev.target.parentNode.remove();
-    });
-    errdiv.appendChild(closeIcon);
-
-    return errdiv;
-}
-
-function setError(elem, err, id) {
-    let errid = "errormsg-" + id;
-    for (let child of elem.children) {
-        if (child.id === errid) {
-            for (let grandchild of child.children) {
-                if (grandchild.classList.contains("error-message-text")) {
-                    grandchild.innerText = err;
-                    console.log("updated existing error");
-                    return child;
-                }
-            }
-            child.remove();
-            console.log("could not find a child of the error with error-message-text class");
-            console.log("removing this error and making a new one");
-            return addError(elem, err, id);
-        }
-    }
-    console.log("creating new error");
-    return addError(elem, err, id);
-}
-
-function removeError(elem, id) {
-    let errid = "errormsg-" + id;
-    for (let child of elem.children) {
-        if (child.id === errid) {
-            child.remove();
-            return true;
-        }
-    }
-    return false;
-}
-
-function addError(elem, err, id) {
-    let errormessage = createError(err, id);
-    console.log("made error message");
-    console.log(errormessage);
-    elem.appendChild(errormessage);
-}
-
-function clearErrors(elem) {
-    for (let child of elem.children) {
-        if (child.classList.contains("error-message")) {
-            child.remove();
-        }
-    }
-}
 
 function verifySignup(username, password, repeatpassword, success, failure) {
-    failure("Error signing up: not implemented");
+    let errors = [];
+    if (username.length === 0) {
+        errors.push("Enter a username");
+    } else if (username.length < 3) {
+        errors.push("Username must be 3 characters or longer");
+    }
+    if (/[^A-Za-z0-9\-_.]/.test(username)) {
+        errors.push("Username must only contain alphanumeric characters and - _ .");
+    }
+    if (password !== repeatpassword) {
+        errors.push("Passwords do not match");
+    }
+    if (password.length === 0) {
+        errors.push("Enter a password");
+    } else if (password.length < 8) {
+        errors.push("Password must be 8 characters or longer");
+    }
+
+    if (password.length !== 0 && !(/[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password))) {
+        errors.push("Password must have at least one uppercase letter, at least one digit, and at least one special character");
+    }
+
+    errors.push("backend not implemented yet");
+    failure(errors);
 }
 
 function toggleSignupPrompt(signupButton) {

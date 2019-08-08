@@ -1,11 +1,12 @@
 
-function removeChildren(elem, breakCondition) {
-    while(elem.firstChild) {
-        if (breakCondition(elem.firstChild)) {
-            break;
+function removeChildren(elem, removeCondition) {
+    let toRemove = [];
+    for (let child of elem.children) {
+        if (removeCondition(child)) {
+            toRemove.push(child);
         }
-        elem.removeChild(elem.firstChild);
     }
+    toRemove.map(e=>e.remove());
 }
 
 function applyEventListenerToSelector(selector, eventType, f) {
@@ -14,4 +15,14 @@ function applyEventListenerToSelector(selector, eventType, f) {
     }
 }
 
-export {removeChildren, applyEventListenerToSelector,};
+
+function sleep(ms) {
+    // from https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep#39914235
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function unixToDateTime(unix) {
+    return new Date(unix * 1000).toLocaleString();
+}
+
+export {removeChildren, applyEventListenerToSelector,sleep,unixToDateTime};
