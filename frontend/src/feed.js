@@ -42,11 +42,11 @@ function getUpvoteText(postData) {
     }
 }
 
-function toggleImage(imageDiv) {
-    if (imageDiv.classList.contains("active")) {
-        imageDiv.classList.remove("active");
+function toggleExtra(extraDiv) {
+    if (extraDiv.classList.contains("active")) {
+        extraDiv.classList.remove("active");
     } else {
-        imageDiv.classList.add("active");
+        extraDiv.classList.add("active");
     }
 }
 
@@ -55,35 +55,45 @@ function createPost(postData) {
     postLi.classList.add("post");
     postLi.setAttribute("data-id-post", postData.id);
 
+    let postContainer = document.createElement("div");
+    postContainer.classList.add("post-container");
+
     let voteDiv = document.createElement("div");
     voteDiv.classList.add("vote");
+    voteDiv.classList.add("post-grid-vote")
     voteDiv.setAttribute("data-id-upvotes", postData.meta.upvotes.length);
+    let voteContainer = document.createElement("div");
+    voteContainer.classList.add("vote-container");
     let upvoteIcon = document.createElement("i");
     upvoteIcon.classList.add("material-icons");
     upvoteIcon.innerText = "arrow_upward";
-    voteDiv.appendChild(upvoteIcon);
-    voteDiv.appendChild(document.createElement("br"));
+    voteContainer.appendChild(upvoteIcon);
+    voteContainer.appendChild(document.createElement("br"));
     let upvoteCount = document.createElement("div");
     upvoteCount.classList.add("upvote-count");
     upvoteCount.appendChild(document.createTextNode(postData.meta.upvotes.length));
-    voteDiv.appendChild(upvoteCount);
-
+    voteContainer.appendChild(upvoteCount);
     upvoteIcon.addEventListener("click", event => upvotePost(postData.id, upvoteIcon));
+    voteDiv.appendChild(voteContainer);
 
-
-    let contentDiv = document.createElement("div");
-    contentDiv.classList.add("content");
-
+    let titleDiv = document.createElement("div");
+    titleDiv.classList.add("post-grid-title");
     let postTitle = document.createElement("h4");
     postTitle.classList.add("post-title");
     postTitle.classList.add("alt-text");
     postTitle.setAttribute("data-id-title", '');
     postTitle.innerText = postData.title;
+    titleDiv.appendChild(postTitle);
+
+    let contentDiv = document.createElement("div");
+    contentDiv.classList.add("post-grid-content");
+    contentDiv.innerText = postData.text;
     
+    let metaDiv = document.createElement("div");
+    metaDiv.classList.add("post-grid-meta");
     let authorP = document.createElement("p");
     authorP.classList.add("post-author");
     authorP.setAttribute("data-id-author", postData.meta.author);
-   
     let authorText = 
         "Posted by @" 
         + postData.meta.author
@@ -92,38 +102,45 @@ function createPost(postData) {
         + " to " 
         + "/s/" + postData.meta.subseddit;
     authorP.innerText = authorText;
+    metaDiv.appendChild(authorP);
 
     let thumbDiv = document.createElement("div");
-    thumbDiv.classList.add("post-thumb-container");
+    thumbDiv.classList.add("post-grid-thumb");
     if (postData.thumbnail !== null) {
         let img = document.createElement("img");
         img.classList.add("post-thumb");
         img.setAttribute("src", "data:image/png;base64," + postData.thumbnail);
         thumbDiv.appendChild(img);
+    } else {
+        let textIcon = document.createElement("i");
+        textIcon.classList.add("material-icons")
+        textIcon.innerText = "notes";
+        thumbDiv.appendChild(textIcon);
     }
 
-    let imageDiv = document.createElement("div");
-    imageDiv.classList.add("post-image-container");
+    let extraDiv = document.createElement("div");
+    extraDiv.classList.add("post-grid-extra");
     if (postData.image !== null) {
         let img = document.createElement("img");
         img.classList.add("post-image");
         img.setAttribute("src", "data:image/jpg;base64," + postData.image);
-        imageDiv.appendChild(img);
+        extraDiv.appendChild(img);
     }
 
     thumbDiv.addEventListener("click", () => {
-        toggleImage(imageDiv);
+        toggleExtra(extraDiv);
     });
-    imageDiv.addEventListener("click", () => {
-        toggleImage(imageDiv);
+    extraDiv.addEventListener("click", () => {
+        toggleExtra(extraDiv);
     });
 
-    contentDiv.appendChild(postTitle);
-    contentDiv.appendChild(authorP);
-    postLi.appendChild(voteDiv);
-    postLi.appendChild(thumbDiv);
-    postLi.appendChild(contentDiv);
-    postLi.appendChild(imageDiv);
+    postContainer.appendChild(voteDiv);
+    postContainer.appendChild(thumbDiv);
+    postContainer.appendChild(titleDiv);
+    postContainer.appendChild(contentDiv);
+    postContainer.appendChild(metaDiv);
+    postContainer.appendChild(extraDiv);
+    postLi.appendChild(postContainer);
 
     return postLi;
 }
