@@ -19,15 +19,57 @@ function loadFeedLevel0(uri) {
         });
 }
 
+function userHasUpvotedPost(postId, user) {
+    return false;
+}
+
+function upvotePost(postId, upvoteElem) {
+    if (upvoteElem.classList.contains("active")) {
+        upvoteElem.classList.remove("active");
+    } else {
+        upvoteElem.classList.add("active");
+    }
+}
+
+function getUpvoteText(postData) {
+    let upvotes = Number(postData.meta.upvotes.length);
+    if (upvotes < 1000) {
+        return upvotes.toString();
+    } else {
+        let thousands = Math.floor(upvotes/1000);
+        let hundreds = Math.floor((upvotes-thousands)/100);
+        return thousands + "." + hundreds + "k";
+    }
+}
+
+function toggleImage(imageDiv) {
+    if (imageDiv.classList.contains("active")) {
+        imageDiv.classList.remove("active");
+    } else {
+        imageDiv.classList.add("active");
+    }
+}
+
 function createPost(postData) {
     let postLi = document.createElement("li");
     postLi.classList.add("post");
-    postLi.setAttribute("data-id-post", '');
+    postLi.setAttribute("data-id-post", postData.id);
 
     let voteDiv = document.createElement("div");
     voteDiv.classList.add("vote");
-    voteDiv.setAttribute("data-id-upvotes", '');
-    voteDiv.innerText = postData.meta.upvotes.length;
+    voteDiv.setAttribute("data-id-upvotes", postData.meta.upvotes.length);
+    let upvoteIcon = document.createElement("i");
+    upvoteIcon.classList.add("material-icons");
+    upvoteIcon.innerText = "arrow_upward";
+    voteDiv.appendChild(upvoteIcon);
+    voteDiv.appendChild(document.createElement("br"));
+    let upvoteCount = document.createElement("div");
+    upvoteCount.classList.add("upvote-count");
+    upvoteCount.appendChild(document.createTextNode(postData.meta.upvotes.length));
+    voteDiv.appendChild(upvoteCount);
+
+    upvoteIcon.addEventListener("click", event => upvotePost(postData.id, upvoteIcon));
+
 
     let contentDiv = document.createElement("div");
     contentDiv.classList.add("content");
@@ -40,7 +82,7 @@ function createPost(postData) {
     
     let authorP = document.createElement("p");
     authorP.classList.add("post-author");
-    authorP.setAttribute("data-id-author", '');
+    authorP.setAttribute("data-id-author", postData.meta.author);
    
     let authorText = 
         "Posted by @" 
@@ -51,20 +93,37 @@ function createPost(postData) {
         + "/s/" + postData.meta.subseddit;
     authorP.innerText = authorText;
 
-    let imageDiv = document.createElement("div");
-    imageDiv.classList.add("post-thumb-container");
+    let thumbDiv = document.createElement("div");
+    thumbDiv.classList.add("post-thumb-container");
     if (postData.thumbnail !== null) {
         let img = document.createElement("img");
         img.classList.add("post-thumb");
-        img.setAttribute("src", "data:image/png;base64, " + postData.thumbnail);
+        img.setAttribute("src", "data:image/png;base64," + postData.thumbnail);
+        thumbDiv.appendChild(img);
+    }
+
+    let imageDiv = document.createElement("div");
+    imageDiv.classList.add("post-image-container");
+    if (postData.image !== null) {
+        let img = document.createElement("img");
+        img.classList.add("post-image");
+        img.setAttribute("src", "data:image/jpg;base64," + postData.image);
         imageDiv.appendChild(img);
     }
+
+    thumbDiv.addEventListener("click", () => {
+        toggleImage(imageDiv);
+    });
+    imageDiv.addEventListener("click", () => {
+        toggleImage(imageDiv);
+    });
 
     contentDiv.appendChild(postTitle);
     contentDiv.appendChild(authorP);
     postLi.appendChild(voteDiv);
-    postLi.appendChild(imageDiv);
+    postLi.appendChild(thumbDiv);
     postLi.appendChild(contentDiv);
+    postLi.appendChild(imageDiv);
 
     return postLi;
 }

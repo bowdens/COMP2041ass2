@@ -192,3 +192,33 @@ footer > * {
   text-align: right;
   vertical-align: baseline;
 }
+
+.vote {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.vote i {
+  color: black;
+}
+
+.vote i.active {
+  color: var(--reddit-orange);
+}
+
+.post-thumb {
+  display: inline;
+}
+
+.post-image-container {
+  display: none;
+}
+
+.post-image-container.active {
+  display: flex;
+}
+
+.post-image {
+  max-width: 100%;
+  max-height: 100%;
+}
