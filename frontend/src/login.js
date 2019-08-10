@@ -1,6 +1,14 @@
-import {applyEventListenerToSelector} from "./general_tools.js";
-import {clearMain, addToMain, postError} from "./main_tools.js";
+import {applyEventListenerToSelector, sendPostToBackend} from "./general_tools.js";
+import {clearMain, addToMain, postError, setSignedInUser} from "./main_tools.js";
 import {setError, removeError, clearErrors} from "./errors.js";
+import {setupFeed} from "./feed.js";
+
+let apiUrl = null;
+let authToken = null;
+
+function getAuthToken() {
+    return authToken;
+}
 
 function createLoginDiv() {
     let div = document.createElement("div");
@@ -21,12 +29,22 @@ function createLoginDiv() {
     username.type = "text";
     username.name = "username";
     username.placeholder = "username";
+    username.addEventListener("keyup", (ev) => {
+        if (ev.key === "Enter" && document.activeElement === username) {
+            clickLogin();
+        }
+    });
 
     let password = document.createElement("input");
     password.id = "login-password";
     password.type = "password";
     password.name = "password";
     password.placeholder = "password";
+    password.addEventListener("keyup", (ev) => {
+        if (ev.key === "Enter" && document.activeElement === password) {
+            clickLogin();
+        }
+    });
 
     let submit = document.createElement("button");
     submit.innerText = "Login";
@@ -72,12 +90,22 @@ function createSignupDiv() {
     username.type = "text";
     username.name = "username";
     username.placeholder = "username";
+    username.addEventListener("keyup", (ev) => {
+        if (ev.key === "Enter" && document.activeElement === username) {
+            clickSignup();
+        }
+    });
 
     let password = document.createElement("input");
     password.id = "signup-password";
     password.type = "password";
     password.name = "password";
     password.placeholder = "password";
+    password.addEventListener("keyup", (ev) => {
+        if (ev.key === "Enter" && document.activeElement === password) {
+            clickSignup();
+        }
+    });
     
     let repeatpassword = document.createElement("input");
     repeatpassword.id = "signup-repeat-password";
@@ -91,11 +119,16 @@ function createSignupDiv() {
             postError("could not find errdiv to post error about passwords matching");
         }
         if (r.same === false) {
-            setError(errdiv, "Passwords do not match", "password-error");
+            setError(errdiv, "Passwords do not match", "Passwords do not match");
         } else if (r.same === true) {
-            removeError(errdiv, "password-error");
+            removeError(errdiv, "Passwords do not match");
         } else {
             setError(errdiv, "Password matching failed unexpectedly. same = " + r.same + ", error = " + r.error, "password-error");
+        }
+    });
+    repeatpassword.addEventListener("keyup", (ev) => {
+        if (ev.key === "Enter" && document.activeElement === repeatpassword) {
+            clickSignup();
         }
     });
     
@@ -129,6 +162,13 @@ function createSignupDiv() {
 }
 
 function clickLogin() {
+    let errdiv = document.getElementById("login-error-anchor");
+    if (! errdiv) {
+        postError("could not find login error anchor to post error " + err);
+        return;
+    }
+    clearErrors(errdiv);
+
     let usernameinput = document.getElementById("login-username");
     if (! usernameinput) {
         postError("could not find username on page");
@@ -141,12 +181,13 @@ function clickLogin() {
     }
     let password = passwordinput.value;
 
-    verifyLogin(username, password, () => {}, (errors) => {
-        let errdiv = document.getElementById("login-error-anchor");
-        if (! errdiv) {
-            postError("could not find login error anchor to post error " + err);
-            return;
-        }
+    verifyLogin(username, password, (token) => {
+        console.log("token: " + token);
+        authToken = token;
+        setupFeed(apiUrl);
+        console.log(setSignedInUser(username));
+        clearMain();
+    }, (errors) => {
         for (let error of errors) {
             setError(errdiv, error, error);
             console.log("login error: " + error);
@@ -155,10 +196,47 @@ function clickLogin() {
 }
 
 function verifyLogin(username, password, success, failure) {
-    failure(["Error logging in: log in not yet implemented"]);
+    let errors = [];
+
+    if (username.length === 0) {
+        errors.push("Enter a username");
+    }
+    if (password.length === 0) {
+        errors.push("Enter a password");
+    }
+
+    if (errors.length > 0) {
+        failure(errors);
+        return;
+    }
+
+    sendPostToBackend(apiUrl+"/auth/login", {
+        username: username,
+        password: password
+    })
+    .then(response => {
+        if (response.status === 403) {
+            // wrong password
+
+            errors.push("Incorrect password!");
+        } else if (response.status === 400) {
+            errors.push("Internal error: Missing username/password");
+        } else {
+            return response.json();
+        }
+    })
+    .then(json => {
+        console.log(json);
+
+        if (errors.length > 0) {
+            failure(errors);
+        } else {
+            success(json.token);
+        };
+    });
 }
 
-function toggleLoginPrompt(loginButton) {
+function toggleLoginPrompt() {
     if (document.getElementById("login") === null) {
         clearMain();
         let loginForm = createLoginDiv();
@@ -170,6 +248,13 @@ function toggleLoginPrompt(loginButton) {
 
 
 function clickSignup() {
+    let errdiv = document.getElementById("login-error-anchor");
+    clearErrors(errdiv);
+    if (! errdiv) {
+        postError("could not find login error anchor to post error " + errors);
+        return;
+    }
+
     let usernameinput = document.getElementById("signup-username");
     if (! usernameinput) {
         postError("could not find username on page");
@@ -192,13 +277,6 @@ function clickSignup() {
     let repeatpassword = repeatpasswordinput.value;
 
     verifySignup(username, password, repeatpassword, () => {}, (errors) => {
-        let errdiv = document.getElementById("login-error-anchor");
-        clearErrors(errdiv);
-        if (! errdiv) {
-            postError("could not find login error anchor to post error " + errors);
-            return;
-        }
-
         for (let error of errors) {
             setError(errdiv, error, error);
             console.log(error);
@@ -231,7 +309,15 @@ function verifySignup(username, password, repeatpassword, success, failure) {
     }
 
     errors.push("backend not implemented yet");
-    failure(errors);
+    
+    if (errors.length > 0) {
+        failure(errors);
+        return false;
+    } else {
+        success()
+        // todo
+        console.log("did a thing");
+    }
 }
 
 function toggleSignupPrompt(signupButton) {
@@ -252,9 +338,10 @@ function matching_passwords(pass1, pass2) {
     }
 }
 
-function setupLogin() {
-    applyEventListenerToSelector("[data-id-login]", "click", (e) => toggleLoginPrompt(e.target));
-    applyEventListenerToSelector("[data-id-signup]", "click", (e) => toggleSignupPrompt(e.target));
+function setupLogin(url) {
+    apiUrl = url;
+    applyEventListenerToSelector("[data-id-login]", "click", toggleLoginPrompt);
+    applyEventListenerToSelector("[data-id-signup]", "click", toggleSignupPrompt);
 }
 
-export {setupLogin};
+export {setupLogin, getAuthToken};

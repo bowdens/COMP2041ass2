@@ -61,11 +61,17 @@ function addError(elem, err, id) {
 }
 
 function clearErrors(elem) {
+    let toRemove = []
     for (let child of elem.children) {
         if (child.classList.contains("error-message")) {
-            child.remove();
+            toRemove.push(child);
         }
     }
+
+    for (let elem of toRemove) {
+        elem.remove();
+    }
+    return toRemove.length;
 }
 
 export {clearErrors, removeError, setError};

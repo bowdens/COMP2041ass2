@@ -45,13 +45,17 @@ footer {
   background-color: white;
   min-height: 50px;
   border-bottom: 1px solid var(--reddit-grey);
+  max-width: 800px;
+  width: 80%;
+  min-width: 730px;
+  margin: auto;
 }
 
 #logo {
   color: white;
   font-size: var(--body-text-size);
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   background-color: var(--reddit-orange);
   border-radius: 50%;
 }
@@ -83,6 +87,7 @@ footer {
   text-transform: uppercase;
   padding: 7.5px 15px;
   font-weight: bold;
+  cursor: pointer;
 }
 
 .button-primary {
@@ -102,6 +107,8 @@ footer > * {
 .nav {
   list-style-type: none;
   padding: 0;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .nav-item {
@@ -193,3 +200,23 @@ footer > * {
   vertical-align: baseline;
 }
 
+#signed-in-user {
+  color: black;
+  height: 100%;
+  float: left;
+  transform: translateY(30%);
+}
+#signed-in-user .username {
+  font-size: 16px;
+  float: left;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-right: 20px;
+}
+
+#signed-in-user .username i {
+    position: relative;
+    top: 50%;
+    transform: translateY(20%);
+}

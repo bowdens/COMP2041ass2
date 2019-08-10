@@ -12,9 +12,9 @@ import {setupFeed} from './feed.js';
 // this will allow us to verify your apps behaviour with 
 // different datasets.
 function initApp(apiUrl) {
-  // your app initialisation goes here
-  setupLogin();
-  setupFeed();
+  console.log(apiUrl);
+  setupLogin(apiUrl);
+  setupFeed(apiUrl);
 }
 
 export default initApp;

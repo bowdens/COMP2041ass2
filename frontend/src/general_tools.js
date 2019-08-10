@@ -25,4 +25,21 @@ function unixToDateTime(unix) {
     return new Date(unix * 1000).toLocaleString();
 }
 
-export {removeChildren, applyEventListenerToSelector,sleep,unixToDateTime};
+function sendPostToBackend(endpoint, body) {
+    return fetch(endpoint, {
+        method: "post",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+    })
+}
+
+export {
+    removeChildren, 
+    applyEventListenerToSelector, 
+    sleep, 
+    unixToDateTime,
+    sendPostToBackend
+};

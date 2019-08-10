@@ -1,22 +1,55 @@
 import {clearFeed, postError} from './main_tools.js';
 import {unixToDateTime} from './general_tools.js';
+import {getAuthToken} from './login.js';
 
 let feed = document.getElementById("feed");
+let apiUrl = null;
+let nextPost = 0;
 
-function setupFeed() {
+function setupFeed(url) {
+    apiUrl = url;
     clearFeed();
-    loadFeedLevel0('/data/feed.json');
+    nextPost = 0;
+    extendFeed(url);   
 }
 
-function loadFeedLevel0(uri) {
-    fetch(uri)
-        .then(response => response.json())
-        .then(feed => {
-            console.log(feed);
-            for (let post of feed.posts.sort((a,b) => b.meta.published - a.meta.published)) {
-                appendPost(post);
-            }
+function extendFeed() {
+    let authToken = getAuthToken();
+    if (authToken === null) {
+        clearFeed();
+        nextPost = 0;
+        loadFeed(apiUrl + "/post/public", {});
+    } else {
+        loadFeed(apiUrl + "/user/feed", {
+            Authorization: "Token " + authToken,
+            p: nextPost,
+            n: 10
         });
+    }
+}
+
+function loadFeed(uri, headers) {
+    fetch(uri, {
+        method: "get",
+        headers: headers,
+    })
+    .then(response => {
+        if (response.status !== 200) {
+            postError("Could not load feed. Status code " + response.status);
+            return;
+        }
+        return response.json()
+    })
+    .then(feed => {
+        console.log(feed);
+        if (! feed) {
+            return;
+        }
+        nextPost += feed.posts.length;
+        for (let post of feed.posts.sort((a,b) => b.meta.published - a.meta.published)) {
+            appendPost(post);
+        }
+    });
 }
 
 function userHasUpvotedPost(postId, user) {
