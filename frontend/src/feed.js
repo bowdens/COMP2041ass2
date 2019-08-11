@@ -36,7 +36,7 @@ function loadFeed(uri, headers) {
     .then(response => {
         if (response.status !== 200) {
             postError("Could not load feed. Status code " + response.status);
-            return;
+            console.log(response);
         }
         return response.json()
     })

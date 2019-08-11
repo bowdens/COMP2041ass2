@@ -1,4 +1,4 @@
-import {applyEventListenerToSelector, sendPostToBackend} from "./general_tools.js";
+import {applyEventListenerToSelector, sendPostToBackend, validEmail} from "./general_tools.js";
 import {clearMain, addToMain, postError, setSignedInUser} from "./main_tools.js";
 import {setError, removeError, clearErrors} from "./errors.js";
 import {setupFeed} from "./feed.js";
@@ -85,6 +85,17 @@ function createSignupDiv() {
     errormessage.id = "login-error-anchor";
 
 
+    let name = document.createElement("input");
+    name.setAttribute("id", "signup-name");
+    name.setAttribute("type", "text");
+    name.setAttribute("name", "name");
+    name.setAttribute("placeholder", "Name");
+    name.addEventListener("keyup", (ev) => {
+        if (ev.key === "Enter" && document.activeElement === name) {
+            clickSignup();
+        }
+    });
+
     let username = document.createElement("input");
     username.id = "signup-username";
     username.type = "text";
@@ -95,6 +106,28 @@ function createSignupDiv() {
             clickSignup();
         }
     });
+
+    let email = document.createElement("input");
+    email.setAttribute("id", "signup-email");
+    email.setAttribute("type", "email");
+    email.setAttribute("name", "email");
+    email.setAttribute("placeholder", "name@example.com");
+    email.addEventListener("keyup", (ev) => {
+        if (ev.key === "Enter" && document.activeElement === email) {
+            clickSignup();
+        }
+    });
+    email.addEventListener("keyup", (ev) => {
+        let errdiv = document.getElementById("login-error-anchor");
+        if (! errdiv) {
+            postError("Cound't find errdiv to post error about bad email");
+        } 
+        if (email.value.length > 0 && validEmail(email.value) === false) {
+            setError(errdiv, "Email is invalid", "Email is invalid");
+        } else {
+            removeError(errdiv, "Email is invalid");
+        }
+    })
 
     let password = document.createElement("input");
     password.id = "signup-password";
@@ -117,6 +150,7 @@ function createSignupDiv() {
         let errdiv = document.getElementById("login-error-anchor");
         if (! errdiv) {
             postError("could not find errdiv to post error about passwords matching");
+            return;
         }
         if (r.same === false) {
             setError(errdiv, "Passwords do not match", "Passwords do not match");
@@ -142,9 +176,17 @@ function createSignupDiv() {
 
     signupForm.appendChild(title);
     signupForm.appendChild(errormessage);
+    signupForm.appendChild(document.createTextNode("Name"));
+    signupForm.appendChild(document.createElement("br"));
+    signupForm.appendChild(name);
+    signupForm.appendChild(document.createElement("br"));
     signupForm.appendChild(document.createTextNode("Username"));
     signupForm.appendChild(document.createElement("br"));
     signupForm.appendChild(username);
+    signupForm.appendChild(document.createElement("br"));
+    signupForm.appendChild(document.createTextNode("Email"));
+    signupForm.appendChild(document.createElement("br"));
+    signupForm.appendChild(email);
     signupForm.appendChild(document.createElement("br"));
     signupForm.appendChild(document.createTextNode("Password"));
     signupForm.appendChild(document.createElement("br"));
@@ -217,13 +259,13 @@ function verifyLogin(username, password, success, failure) {
     .then(response => {
         if (response.status === 403) {
             // wrong password
-
-            errors.push("Incorrect password!");
+            errors.push("Incorrect username/password");
         } else if (response.status === 400) {
             errors.push("Internal error: Missing username/password");
-        } else {
-            return response.json();
+        } else if (response.status !== 200) {
+            errors.push("Unexpected internal error: Status " + response.status);
         }
+        return response.json();
     })
     .then(json => {
         console.log(json);
@@ -255,12 +297,26 @@ function clickSignup() {
         return;
     }
 
+    let nameinput = document.getElementById("signup-name");
+    if (! nameinput) {
+        postError("could not find name on page");
+        return;
+    }
+    let name = nameinput.value;
+
     let usernameinput = document.getElementById("signup-username");
     if (! usernameinput) {
         postError("could not find username on page");
         return;
     }
     let username = usernameinput.value;
+
+    let emailinput = document.getElementById("signup-email");
+    if (! usernameinput) {
+        postError("could not find email input on page");
+        return;
+    }
+    let email = emailinput.value;
 
     let passwordinput = document.getElementById("signup-password");
     if (! passwordinput) {
@@ -276,7 +332,13 @@ function clickSignup() {
     }
     let repeatpassword = repeatpasswordinput.value;
 
-    verifySignup(username, password, repeatpassword, () => {}, (errors) => {
+    verifySignup(name, username, email, password, repeatpassword, (token) => {
+        console.log("setting up new users feed")
+        authToken = token;
+        setupFeed(apiUrl);
+        setSignedInUser(username);
+        clearMain();
+    }, (errors) => {
         for (let error of errors) {
             setError(errdiv, error, error);
             console.log(error);
@@ -285,8 +347,12 @@ function clickSignup() {
 }
 
 
-function verifySignup(username, password, repeatpassword, success, failure) {
+function verifySignup(name, username, email, password, repeatpassword, success, failure) {
     let errors = [];
+    if (name.length === 0) {
+        errors.push("Enter a name");
+    }
+
     if (username.length === 0) {
         errors.push("Enter a username");
     } else if (username.length < 3) {
@@ -295,6 +361,13 @@ function verifySignup(username, password, repeatpassword, success, failure) {
     if (/[^A-Za-z0-9\-_.]/.test(username)) {
         errors.push("Username must only contain alphanumeric characters and - _ .");
     }
+
+    if (email.length === 0) {
+        errors.push("Enter an email");
+    } else if (!validEmail(email)) {
+        errors.push("Email is invalid");
+    }
+
     if (password !== repeatpassword) {
         errors.push("Passwords do not match");
     }
@@ -304,23 +377,39 @@ function verifySignup(username, password, repeatpassword, success, failure) {
         errors.push("Password must be 8 characters or longer");
     }
 
-    if (password.length !== 0 && !(/[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password))) {
-        errors.push("Password must have at least one uppercase letter, at least one digit, and at least one special character");
+    if (password.length !== 0 && !(/[A-Z]/.test(password) && /[0-9]/.test(password))) {
+        errors.push("Password must have at least one uppercase letter, and at least one digit");
     }
 
-    errors.push("backend not implemented yet");
-    
-    if (errors.length > 0) {
-        failure(errors);
-        return false;
-    } else {
-        success()
-        // todo
-        console.log("did a thing");
-    }
+    sendPostToBackend(apiUrl + "/auth/signup", {
+        username: username,
+        password: password,
+        email: email,
+        name: name
+    })
+    .then(response => {
+        if (response.status === 400) {
+            errors.push("Signup failed: Internal error: Malformed Request");
+        } else if (response.status === 409) {
+            errors.push("Signup failed: Username is already taken");
+        } else if (response.status !== 200) {
+            errors.push("Unexpected internal error, status code " + response.status);
+        }
+        return response.json();
+    })
+    .then(json => {
+        console.log(json);
+        if (errors.length > 0) {
+            failure(errors);
+            return false;
+        } else {
+            success(json.token);
+            return true;
+        }
+    });
 }
 
-function toggleSignupPrompt(signupButton) {
+function toggleSignupPrompt() {
     if (document.getElementById("signup") === null) {
         clearMain();
         let signupForm = createSignupDiv();
@@ -344,4 +433,10 @@ function setupLogin(url) {
     applyEventListenerToSelector("[data-id-signup]", "click", toggleSignupPrompt);
 }
 
-export {setupLogin, getAuthToken};
+function logoutUser() {
+    authToken = null;
+    clearMain();
+    setupFeed(apiUrl);
+}
+
+export {setupLogin, getAuthToken, logoutUser};
