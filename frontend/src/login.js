@@ -1,10 +1,10 @@
-import {applyEventListenerToSelector, sendPostToBackend, validEmail} from "./general_tools.js";
+import {applyEventListenerToSelector, sendRequestToBackend, validEmail} from "./general_tools.js";
 import {clearMain, addToMain, postError, setSignedInUser} from "./main_tools.js";
 import {setError, removeError, clearErrors} from "./errors.js";
-import {setupFeed} from "./feed.js";
+import {setupFeed, updateAllPostUpvotes} from "./feed.js";
 
-let apiUrl = null;
 let authToken = null;
+let userInfo = null;
 
 function getAuthToken() {
     return authToken;
@@ -226,7 +226,7 @@ function clickLogin() {
     verifyLogin(username, password, (token) => {
         console.log("token: " + token);
         authToken = token;
-        setupFeed(apiUrl);
+        setupFeed();
         console.log(setSignedInUser(username));
         clearMain();
     }, (errors) => {
@@ -252,10 +252,10 @@ function verifyLogin(username, password, success, failure) {
         return;
     }
 
-    sendPostToBackend(apiUrl+"/auth/login", {
+    sendRequestToBackend("/auth/login", "post", {}, {
         username: username,
         password: password
-    })
+    }, {})
     .then(response => {
         if (response.status === 403) {
             // wrong password
@@ -335,7 +335,7 @@ function clickSignup() {
     verifySignup(name, username, email, password, repeatpassword, (token) => {
         console.log("setting up new users feed")
         authToken = token;
-        setupFeed(apiUrl);
+        setupFeed();
         setSignedInUser(username);
         clearMain();
     }, (errors) => {
@@ -381,7 +381,7 @@ function verifySignup(name, username, email, password, repeatpassword, success, 
         errors.push("Password must have at least one uppercase letter, and at least one digit");
     }
 
-    sendPostToBackend(apiUrl + "/auth/signup", {
+    sendPostToBackend("/auth/signup", "post", {}, {
         username: username,
         password: password,
         email: email,
@@ -428,7 +428,6 @@ function matching_passwords(pass1, pass2) {
 }
 
 function setupLogin(url) {
-    apiUrl = url;
     applyEventListenerToSelector("[data-id-login]", "click", toggleLoginPrompt);
     applyEventListenerToSelector("[data-id-signup]", "click", toggleSignupPrompt);
 }
@@ -436,7 +435,7 @@ function setupLogin(url) {
 function logoutUser() {
     authToken = null;
     clearMain();
-    setupFeed(apiUrl);
+    setupFeed();
 }
 
 export {setupLogin, getAuthToken, logoutUser};

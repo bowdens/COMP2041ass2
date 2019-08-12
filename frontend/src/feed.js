@@ -1,16 +1,15 @@
 import {clearFeed, postError} from './main_tools.js';
-import {unixToDateTime} from './general_tools.js';
+import {unixToDateTime, sendRequestToBackend, resolveUserId} from './general_tools.js';
 import {getAuthToken} from './login.js';
 
 let feed = document.getElementById("feed");
-let apiUrl = null;
 let nextPost = 0;
+let userInfo = null;
 
-function setupFeed(url) {
-    apiUrl = url;
+function setupFeed() {
     clearFeed();
     nextPost = 0;
-    extendFeed(url);   
+    extendFeed();   
 }
 
 function extendFeed() {
@@ -18,9 +17,9 @@ function extendFeed() {
     if (authToken === null) {
         clearFeed();
         nextPost = 0;
-        loadFeed(apiUrl + "/post/public", {});
+        loadFeed("/post/public", {});
     } else {
-        loadFeed(apiUrl + "/user/feed", {
+        loadFeed("/user/feed", {
             Authorization: "Token " + authToken,
             p: nextPost,
             n: 10
@@ -28,11 +27,10 @@ function extendFeed() {
     }
 }
 
-function loadFeed(uri, headers) {
-    fetch(uri, {
-        method: "get",
-        headers: headers,
-    })
+function loadFeed(endpoint, headers) {
+    console.log("loading feed at " + endpoint);
+    console.log(headers);
+    sendRequestToBackend(endpoint, "get", headers, null, null)
     .then(response => {
         if (response.status !== 200) {
             postError("Could not load feed. Status code " + response.status);
@@ -49,19 +47,90 @@ function loadFeed(uri, headers) {
         for (let post of feed.posts.sort((a,b) => b.meta.published - a.meta.published)) {
             appendPost(post);
         }
+
+        if (getAuthToken() !== null) {
+            sendRequestToBackend("/user/", "get", {}, null, null, getAuthToken())
+            .then(response => response.json())
+            .then(json => {
+                userInfo = json;
+                console.log("user");
+                console.log(userInfo);
+                updateAllPostUpvotes(userInfo.id);
+            });
+        }
     });
 }
 
-function userHasUpvotedPost(postId, user) {
-    return false;
+function updateVoteDiv(voteDiv, upvoteCount, userHasUpvoted) {
+    console.log("vote div is:");
+    console.log(voteDiv);
+    let voteCount = voteDiv.getElementsByClassName("upvote-count")[0];
+    let voteIcon = voteDiv.getElementsByClassName("upvote-icon")[0];
+
+    voteCount.innerText = upvoteCount;
+    if (userHasUpvoted) {
+        voteIcon.classList.add("active");
+    } else {
+        voteIcon.classList.remove("active");
+    }
 }
 
-function upvotePost(postId, upvoteElem) {
-    if (upvoteElem.classList.contains("active")) {
-        upvoteElem.classList.remove("active");
-    } else {
-        upvoteElem.classList.add("active");
+function updateAllPostUpvotes(userId) {
+    let posts = document.getElementsByClassName("post");
+    for (let post of posts) {
+        let postId = post.getAttribute("data-id-post");
+        console.log("updating icon for post #" +postId);
+        let voteDiv = post.getElementsByClassName("vote-container")[0];
+        userHasUpvotedPost(postId, userId, (upvotes) => {
+            updateVoteDiv(voteDiv, upvotes, true);
+        }, (upvotes) => {
+            updateVoteDiv(voteDiv, upvotes, false);
+        });
     }
+}
+
+function userHasUpvotedPost(postId, userId, hasUpvoted, hasNotUpvoted) {
+    sendRequestToBackend("/post/", "get", {}, null, {id:postId}, getAuthToken())
+    .then(response => response.json())
+    .then(json => {
+        console.log("has user upvoted this post?");
+        console.log(json);
+        console.log("upvotes = " + json.meta.upvotes);
+        console.log("num upvotes = " + json.meta.upvotes.length);
+        if (json.meta.upvotes.indexOf(userId) > -1) {
+            console.log("yes!");
+            hasUpvoted(json.meta.upvotes.length);
+        } else {
+            console.log("no :(");
+            hasNotUpvoted(json.meta.upvotes.length);
+        }
+    });
+}
+
+function upvotePost(postId, voteDiv) {
+    console.log("voting on div:");
+    console.log(voteDiv);
+    userHasUpvotedPost(postId, userInfo.id, (numUpvotes) => {
+        console.log("yay upvoted! num upvotes = " + numUpvotes);
+        sendRequestToBackend("/post/vote", "delete", {}, null, {id: postId}, getAuthToken())
+        .then(response => {
+            if (response.status === 200) {
+                updateVoteDiv(voteDiv, Number(numUpvotes) - 1, false);
+            } else {
+                postError("Could not upvote post: response status " + response.status);
+            }
+        });
+    }, (numUpvotes) => {
+        console.log("boo not upvoted! num upvotes = " + numUpvotes);
+        sendRequestToBackend("/post/vote", "put", {}, null, {id: postId}, getAuthToken())
+        .then(response => {
+            if (response.status === 200) {
+                updateVoteDiv(voteDiv, Number(numUpvotes) + 1, true);
+            } else {
+                postError("Could not upvote post: response status " + response.status);
+            }
+        });
+    });
 }
 
 function getUpvoteText(postData) {
@@ -99,14 +168,15 @@ function createPost(postData) {
     voteContainer.classList.add("vote-container");
     let upvoteIcon = document.createElement("i");
     upvoteIcon.classList.add("material-icons");
+    upvoteIcon.classList.add("upvote-icon");
     upvoteIcon.innerText = "arrow_upward";
     voteContainer.appendChild(upvoteIcon);
     voteContainer.appendChild(document.createElement("br"));
     let upvoteCount = document.createElement("div");
     upvoteCount.classList.add("upvote-count");
-    upvoteCount.appendChild(document.createTextNode(postData.meta.upvotes.length));
+    upvoteCount.innerText = postData.meta.upvotes.length;
     voteContainer.appendChild(upvoteCount);
-    upvoteIcon.addEventListener("click", event => upvotePost(postData.id, upvoteIcon));
+    upvoteIcon.addEventListener("click", () => upvotePost(postData.id, voteDiv));
     voteDiv.appendChild(voteContainer);
 
     let titleDiv = document.createElement("div");
@@ -158,14 +228,14 @@ function createPost(postData) {
         img.classList.add("post-image");
         img.setAttribute("src", "data:image/jpg;base64," + postData.image);
         extraDiv.appendChild(img);
-    }
 
-    thumbDiv.addEventListener("click", () => {
-        toggleExtra(extraDiv);
-    });
-    extraDiv.addEventListener("click", () => {
-        toggleExtra(extraDiv);
-    });
+        thumbDiv.addEventListener("click", () => {
+            toggleExtra(extraDiv);
+        });
+        extraDiv.addEventListener("click", () => {
+            toggleExtra(extraDiv);
+        });
+    }
 
     postContainer.appendChild(voteDiv);
     postContainer.appendChild(thumbDiv);
@@ -173,6 +243,82 @@ function createPost(postData) {
     postContainer.appendChild(contentDiv);
     postContainer.appendChild(metaDiv);
     postContainer.appendChild(extraDiv);
+
+    if (getAuthToken() !== null) {
+        let commentsDiv = document.createElement("div");
+        commentsDiv.classList.add("post-grid-comments");
+
+
+        let iconDiv = document.createElement("div");
+        iconDiv.classList.add("icon-container");
+        iconDiv.classList.add("clickable");
+        let expandIcon = document.createElement("i");
+        expandIcon.classList.add("material-icons");
+        expandIcon.classList.add("comment-expander");
+        expandIcon.innerText = "expand_more";
+        iconDiv.appendChild(expandIcon);
+        iconDiv.appendChild(document.createTextNode("Comments"));
+        commentsDiv.appendChild(iconDiv);
+
+        let commentsContent = document.createElement("div");
+        commentsContent.classList.add("comment-content");
+        commentsContent.classList.add("hide");
+
+        let commentsList = document.createElement("ul");
+        commentsList.classList.add("comments-list");
+        commentsList.setAttribute("resolved", "false");
+        commentsContent.appendChild(commentsList);
+
+
+        let upvoteListContainer = document.createElement("div");
+        upvoteListContainer.classList.add("upvote-list-container");
+        upvoteListContainer.appendChild(document.createTextNode("Users who upvoted this post:"));
+        upvoteListContainer.appendChild(document.createElement("br"));
+        let upvoteList = document.createElement("ul");
+        upvoteList.classList.add("upvote-list");
+        upvoteList.setAttribute("resolved", "false");
+        upvoteListContainer.appendChild(upvoteList);
+        commentsContent.appendChild(upvoteListContainer);
+
+        commentsDiv.appendChild(commentsContent);
+
+        iconDiv.addEventListener("click", () =>  {
+            if (commentsContent.classList.contains("hide")) {
+                commentsContent.classList.remove("hide");
+                if (upvoteList.getAttribute("resolved") === "false") {        
+                    for (let upvoter of postData.meta.upvotes) {
+                        let upvote = document.createElement("li");
+                        upvote.innerText = "...loading...";
+                        resolveUserId(upvoter, getAuthToken(), user => {
+                            upvote.innerText = "@" + user.username;
+                        });
+                        upvoteList.appendChild(upvote);
+                    }
+                    upvoteList.setAttribute("resolved", "true");
+                }
+                if (commentsList.getAttribute("resolved") === "false") {
+                    for (let commentData of postData.comments) {
+                        let comment = document.createElement("li");
+                        comment.appendChild(document.createTextNode("Comment by " + commentData.author));
+                        comment.appendChild(document.createElement("br"));
+                        comment.appendChild(document.createTextNode(commentData.comment));
+                        commentsList.appendChild(comment);
+                    }
+                    commentsList.setAttribute("resolved", "true");
+                }
+
+                expandIcon.innerText = "expand_less";
+            } else {
+                commentsContent.classList.add("hide");
+                expandIcon.innerText = "expand_more";
+            }
+        });
+        
+
+        postContainer.appendChild(commentsDiv);
+    }
+
+
     postLi.appendChild(postContainer);
 
     return postLi;
@@ -189,4 +335,4 @@ function appendPost(postData) {
 
 }
 
-export {setupFeed};
+export {setupFeed, updateAllPostUpvotes};

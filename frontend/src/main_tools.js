@@ -1,6 +1,7 @@
 import {removeChildren} from "./general_tools.js";
 import { setupFeed } from "./feed.js";
 import { logoutUser } from "./login.js";
+import { setError } from "./errors.js";
 
 function getMain() {
     return document.querySelector("[role=main]");
@@ -31,8 +32,12 @@ function reloadPosts() {
 
 function postError(errormessage) {
     // todo
+    let main = getMain();
+    if (!main) {
+        console.log("could not find main to post error");
+    }
+    setError(main, errormessage, errormessage);
     console.error(errormessage);
-    
 }
 
 function setSignedInUser(username) {

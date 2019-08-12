@@ -57,7 +57,7 @@ function addError(elem, err, id) {
     let errormessage = createError(err, id);
     console.log("made error message");
     console.log(errormessage);
-    elem.appendChild(errormessage);
+    elem.insertBefore(errormessage, elem.firstChild);
 }
 
 function clearErrors(elem) {
