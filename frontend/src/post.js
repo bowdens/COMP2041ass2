@@ -48,7 +48,7 @@ function submitPost(title, text, subseddit, img, success, failure) {
         };
         if (img) {
             console.log("adding image");
-            body.image = img;
+            body.image = img.match(/data:image\/[^;]*;base64,(.*)/)[1];
         } else {
             console.log("omitting image");
         }
@@ -135,6 +135,7 @@ function createNewPostArea() {
         console.log("imageData = " + imageData);
         submitPost(titleInput.value, textInput.value, subsedditInput.value, preview.getAttribute("src"),
         (newPostId) => {
+            clearMain();
             setupFeed();
         },
         (errors) => {

@@ -224,12 +224,14 @@ function createPost(postData) {
         + " to " 
         + "/s/" + postData.meta.subseddit;
     authorP.appendChild(document.createTextNode(authorText));
-    metaDiv.appendChild(authorP);
+    
     if (getUserInfo() !== null && getUserInfo().username === postData.meta.author) {
         // the logged in user made this post so we will add a button allowing it to be removed
         let removeIcon = document.createElement("i");
         removeIcon.classList.add("material-icons");
         removeIcon.classList.add("post-remove-icon");
+        removeIcon.classList.add("clickable");
+        removeIcon.classList.add("remove-post-icon");
         removeIcon.innerText = "close";
         removeIcon.addEventListener("click", () => {
             if (confirm("Are you sure you want to remove your post?\nThis cannot be undone.")) {
@@ -238,12 +240,14 @@ function createPost(postData) {
                     if (response.status !== 200) {
                         postError("Error deleting post: Reponse status " + response.status);
                     } else {
-                        setupFeed();
+                        postLi.remove();
                     }
                 })
             }
         });
+        authorP.appendChild(removeIcon);
     }
+    metaDiv.appendChild(authorP);
 
     let thumbDiv = document.createElement("div");
     thumbDiv.classList.add("post-grid-thumb");

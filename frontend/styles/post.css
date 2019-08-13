@@ -121,6 +121,13 @@ ul.comments-list li {
   width: 60%;
 }
 
+.remove-post-icon {
+  position: relative;
+  top: 50%;
+  transform: translateY(30%);
+  color: red;
+}
+
 .post .vote {
   width: 35px;
   background-color: var(--reddit-light-grey);
