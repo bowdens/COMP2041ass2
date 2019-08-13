@@ -90,6 +90,11 @@ ul.upvote-list li {
   color: var(--reddit-blue);
 }
 
+ul.comments-list {
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
 ul.comments-list li {
   background-color: var(--reddit-light-grey);
   margin-bottom: 5px;
@@ -97,6 +102,23 @@ ul.comments-list li {
   padding-top: 5px;
   padding-left: 5px;
   list-style-type: none;
+}
+
+.comment-add-container {
+  text-align: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border: 1px solid var(--reddit-light-grey);
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.comment-add-container input,button {
+  margin-top: 10px;
+}
+
+.comment-box {
+  width: 60%;
 }
 
 .post .vote {

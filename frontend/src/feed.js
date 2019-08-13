@@ -2,6 +2,7 @@ import {clearFeed, postError} from './main_tools.js';
 import {unixToDateTime, sendRequestToBackend, resolveUserId} from './general_tools.js';
 import {getAuthToken, getUserInfo} from './login.js';
 import { createInlineUserLink } from './user.js';
+import { setError } from './errors.js';
 
 let feed = document.getElementById("feed");
 let nextPost = 0;
@@ -306,6 +307,56 @@ function createPost(postData) {
         commentsList.setAttribute("resolved", "false");
         commentsContent.appendChild(commentsList);
 
+        let leaveCommentDiv = document.createElement("div");
+        leaveCommentDiv.classList.add("comment-add-container");
+        leaveCommentDiv.appendChild(document.createTextNode("Leave a comment"));
+        leaveCommentDiv.appendChild(document.createElement("br"));
+        let commentBox = document.createElement("input");
+        commentBox.classList.add("comment-box");
+        commentBox.setAttribute("type", "text");
+        commentBox.setAttribute("placeholder", "Comment");
+        leaveCommentDiv.appendChild(commentBox);
+        leaveCommentDiv.appendChild(document.createElement("br"));
+        let submitComment = document.createElement("button");
+        submitComment.classList.add("button");
+        submitComment.classList.add("button-secondary");
+        submitComment.classList.add("clickable");
+        submitComment.innerText = "Add Comment";
+
+        submitComment.addEventListener("click", () => {
+            let commentText = commentBox.value
+            if (! commentText) {
+                setError(leaveCommentDiv, "You must enter a comment to post", "You must enter a comment to post");
+                return;
+            }
+            sendRequestToBackend("/post/comment/", "put", {}, {
+                comment: commentText
+            }, {id: postData.id}, getAuthToken())
+            .then(request => {
+                if (request.status !== 200) {
+                    postError("Error submitting comment: Status code " + request.status);
+                } else {
+                    let comment = document.createElement("li");
+                    comment.appendChild(document.createTextNode("Comment by "));
+                    let usernameLoading = document.createTextNode(getUserInfo().username);
+                    comment.appendChild(usernameLoading);
+                    createInlineUserLink(getUserInfo().username, getUserInfo().id, usernameDiv => {
+                        comment.insertBefore(usernameDiv, usernameLoading);
+                        usernameLoading.remove();
+                    }, errors => {
+                        for (let error of errors) {
+                            postError(error);
+                        }
+                    });
+                    comment.appendChild(document.createElement("br"));
+                    comment.appendChild(document.createTextNode(commentText));
+                    commentsList.appendChild(comment);
+                }
+            });
+        });
+
+        leaveCommentDiv.appendChild(submitComment);
+        commentsContent.appendChild(leaveCommentDiv);
 
         let upvoteListContainer = document.createElement("div");
         upvoteListContainer.classList.add("upvote-list-container");

@@ -13,6 +13,7 @@ function createError(err, id) {
     closeIcon.innerText = "close";
     closeIcon.classList.add("material-icons");
     closeIcon.classList.add("user-close-icon");
+    closeIcon.classList.add("clickable");
     closeIcon.addEventListener("click", (ev) => {
         //console.log(ev);
         ev.target.parentNode.remove();
