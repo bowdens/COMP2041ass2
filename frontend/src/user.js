@@ -1,7 +1,7 @@
 import { sendRequestToBackend } from "./general_tools.js";
 import { getAuthToken, getUserInfo } from "./login.js";
 import { postError, clearMain, addToMain, clearFeed } from "./main_tools.js";
-import { appendPost, setupFeed, userHasUpvotedPost, updateVoteDiv } from "./feed.js";
+import { appendPost, setupFeed, userHasUpvotedPost, updateVoteDiv, leaveHomeFeed, joinHomeFeed } from "./feed.js";
 
 function makeInlineUserLink(username, userId) {
     let userDiv = document.createElement("div");
@@ -10,6 +10,7 @@ function makeInlineUserLink(username, userId) {
     userDiv.setAttribute("userId", userId);
     userDiv.innerText = "@" + username;
     userDiv.addEventListener("click", () => {
+        leaveHomeFeed();
         getAndCreateUserDiv(userId);
     });
     return userDiv;
@@ -104,6 +105,7 @@ function createUserDiv(userData) {
     closeIcon.style.float = "right";
     closeIcon.innerText = "close";
     closeIcon.addEventListener("click", () => {
+        joinHomeFeed();
         clearMain();
         setupFeed();
         document.querySelector("h3.feed-title").innerText = getUserInfo().name + "'s feed";

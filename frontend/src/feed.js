@@ -6,12 +6,22 @@ import { createInlineUserLink } from './user.js';
 let feed = document.getElementById("feed");
 let nextPost = 0;
 let currentPost = 0;
+let homeFeed = true;
+
+function leaveHomeFeed() {
+    homeFeed = false;
+}
+
+function joinHomeFeed() {
+    homeFeed = true;
+}
 
 function setupFeed() {
     clearFeed();
     nextPost = 0;
     currentPost = 0;
-    extendFeed();   
+    extendFeed();
+    setupInfiniteScroll();
 }
 
 function extendFeed() {
@@ -333,7 +343,17 @@ function createPost(postData) {
                 if (commentsList.getAttribute("resolved") === "false") {
                     for (let commentData of postData.comments) {
                         let comment = document.createElement("li");
-                        comment.appendChild(document.createTextNode("Comment by " + commentData.author));
+                        comment.appendChild(document.createTextNode("Comment by "));
+                        let usernameLoading = document.createTextNode(commentData.author);
+                        comment.appendChild(usernameLoading);
+                        createInlineUserLink(commentData.author, null, usernameDiv => {
+                            comment.insertBefore(usernameDiv, usernameLoading);
+                            usernameLoading.remove();
+                        }, errors => {
+                            for (let error of errors) {
+                                postError(error);
+                            }
+                        });
                         comment.appendChild(document.createElement("br"));
                         comment.appendChild(document.createTextNode(commentData.comment));
                         commentsList.appendChild(comment);
@@ -368,4 +388,19 @@ function appendPost(postData) {
     return(post);
 }
 
-export {setupFeed, updateAllPostUpvotes, appendPost, userHasUpvotedPost, updateVoteDiv};
+function setupInfiniteScroll() {
+    // scrolled to the bottom code snipped from
+    // https://stackoverflow.com/a/40370876
+    window.onscroll = function(ev) {
+        if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
+            if (getAuthToken() !== null && homeFeed === true) {
+                console.log("extending feed");
+                console.log("current post = " + currentPost);
+                console.log("next post = " + nextPost);
+                extendFeed();
+            }
+        }
+    };
+}
+
+export {setupFeed, updateAllPostUpvotes, appendPost, userHasUpvotedPost, updateVoteDiv, leaveHomeFeed, joinHomeFeed};
