@@ -58,6 +58,7 @@ footer {
   height: 44px;
   background-color: var(--reddit-orange);
   border-radius: 50%;
+  cursor: pointer;
 }
 
 #search {
@@ -134,6 +135,9 @@ footer > * {
 .feed-title {
   font-weight: normal;
   margin: 0;
+  top: 0%;
+  position: relative;
+  transform: translateY(20%);
 }
 
 /* Add your styles here */
@@ -228,4 +232,24 @@ footer > * {
 
 .clickable {
   cursor: pointer;
+}
+
+#new-post-preview {
+  max-width: 90%;
+  cursor: pointer;
+}
+
+#new-post-preview:hover {
+  transform: scale(1.01);
+}
+
+.inline-user-link {
+  color: var(--reddit-blue);
+  display: inline;
+  text-decoration: underline var(--reddit-blue);
+}
+
+.user-close-icon {
+  position: relative;
+  top: 50%;
 }

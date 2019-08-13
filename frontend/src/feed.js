@@ -1,14 +1,16 @@
 import {clearFeed, postError} from './main_tools.js';
 import {unixToDateTime, sendRequestToBackend, resolveUserId} from './general_tools.js';
-import {getAuthToken} from './login.js';
+import {getAuthToken, getUserInfo} from './login.js';
+import { createInlineUserLink } from './user.js';
 
 let feed = document.getElementById("feed");
 let nextPost = 0;
-let userInfo = null;
+let currentPost = 0;
 
 function setupFeed() {
     clearFeed();
     nextPost = 0;
+    currentPost = 0;
     extendFeed();   
 }
 
@@ -17,8 +19,11 @@ function extendFeed() {
     if (authToken === null) {
         clearFeed();
         nextPost = 0;
+        currentPost = 0;
+        document.querySelector("h3.feed-title").innerText = "Popular Posts";
         loadFeed("/post/public", {});
     } else {
+        currentPost = nextPost;
         loadFeed("/user/feed", {
             Authorization: "Token " + authToken,
             p: nextPost,
@@ -48,26 +53,17 @@ function loadFeed(endpoint, headers) {
             appendPost(post);
         }
 
-        if (getAuthToken() !== null) {
-            sendRequestToBackend("/user/", "get", {}, null, null, getAuthToken())
-            .then(response => response.json())
-            .then(json => {
-                userInfo = json;
-                console.log("user");
-                console.log(userInfo);
-                updateAllPostUpvotes(userInfo.id);
-            });
+        if (getUserInfo() !== null) {
+            updateAllPostUpvotes(getUserInfo().id);
         }
     });
 }
 
 function updateVoteDiv(voteDiv, upvoteCount, userHasUpvoted) {
-    console.log("vote div is:");
-    console.log(voteDiv);
     let voteCount = voteDiv.getElementsByClassName("upvote-count")[0];
     let voteIcon = voteDiv.getElementsByClassName("upvote-icon")[0];
 
-    voteCount.innerText = upvoteCount;
+    voteCount.innerText = getUpvoteText(upvoteCount);
     if (userHasUpvoted) {
         voteIcon.classList.add("active");
     } else {
@@ -93,24 +89,22 @@ function userHasUpvotedPost(postId, userId, hasUpvoted, hasNotUpvoted) {
     sendRequestToBackend("/post/", "get", {}, null, {id:postId}, getAuthToken())
     .then(response => response.json())
     .then(json => {
-        console.log("has user upvoted this post?");
-        console.log(json);
-        console.log("upvotes = " + json.meta.upvotes);
-        console.log("num upvotes = " + json.meta.upvotes.length);
         if (json.meta.upvotes.indexOf(userId) > -1) {
-            console.log("yes!");
             hasUpvoted(json.meta.upvotes.length);
         } else {
-            console.log("no :(");
             hasNotUpvoted(json.meta.upvotes.length);
         }
     });
 }
 
 function upvotePost(postId, voteDiv) {
+    if (getUserInfo() === null) {
+        postError("You cannot upvote a post if you're not logged in");
+        return;
+    }
     console.log("voting on div:");
     console.log(voteDiv);
-    userHasUpvotedPost(postId, userInfo.id, (numUpvotes) => {
+    userHasUpvotedPost(postId, getUserInfo().id, (numUpvotes) => {
         console.log("yay upvoted! num upvotes = " + numUpvotes);
         sendRequestToBackend("/post/vote", "delete", {}, null, {id: postId}, getAuthToken())
         .then(response => {
@@ -133,8 +127,8 @@ function upvotePost(postId, voteDiv) {
     });
 }
 
-function getUpvoteText(postData) {
-    let upvotes = Number(postData.meta.upvotes.length);
+function getUpvoteText(numUpvotes) {
+    let upvotes = Number(numUpvotes);
     if (upvotes < 1000) {
         return upvotes.toString();
     } else {
@@ -174,7 +168,7 @@ function createPost(postData) {
     voteContainer.appendChild(document.createElement("br"));
     let upvoteCount = document.createElement("div");
     upvoteCount.classList.add("upvote-count");
-    upvoteCount.innerText = postData.meta.upvotes.length;
+    upvoteCount.innerText = getUpvoteText(postData.meta.upvotes.length);
     voteContainer.appendChild(upvoteCount);
     upvoteIcon.addEventListener("click", () => upvotePost(postData.id, voteDiv));
     voteDiv.appendChild(voteContainer);
@@ -197,19 +191,52 @@ function createPost(postData) {
     let authorP = document.createElement("p");
     authorP.classList.add("post-author");
     authorP.setAttribute("data-id-author", postData.meta.author);
+    authorP.appendChild(document.createTextNode("Posted by "));
+    let loadingNode = document.createTextNode("@" + postData.meta.author);
+    if (getAuthToken() !== null) {
+        authorP.appendChild(loadingNode);
+        createInlineUserLink(postData.meta.author, null, usernameDiv => {
+            authorP.insertBefore(usernameDiv, loadingNode);
+            loadingNode.remove();
+        }, errors => {
+            for (let error of errors) {
+                postError(error);
+            }
+        });
+    } else {
+        authorP.appendChild(loadingNode);
+    }
+    
     let authorText = 
-        "Posted by @" 
-        + postData.meta.author
-        + " at " 
+        " at " 
         + unixToDateTime(postData.meta.published)
         + " to " 
         + "/s/" + postData.meta.subseddit;
-    authorP.innerText = authorText;
+    authorP.appendChild(document.createTextNode(authorText));
     metaDiv.appendChild(authorP);
+    if (getUserInfo() !== null && getUserInfo().username === postData.meta.author) {
+        // the logged in user made this post so we will add a button allowing it to be removed
+        let removeIcon = document.createElement("i");
+        removeIcon.classList.add("material-icons");
+        removeIcon.classList.add("post-remove-icon");
+        removeIcon.innerText = "close";
+        removeIcon.addEventListener("click", () => {
+            if (confirm("Are you sure you want to remove your post?\nThis cannot be undone.")) {
+                sendRequestToBackend("/post/", "delete", {}, {}, {id:postData.id}, getAuthToken())
+                .then(response => {
+                    if (response.status !== 200) {
+                        postError("Error deleting post: Reponse status " + response.status);
+                    } else {
+                        setupFeed();
+                    }
+                })
+            }
+        });
+    }
 
     let thumbDiv = document.createElement("div");
     thumbDiv.classList.add("post-grid-thumb");
-    if (postData.thumbnail !== null) {
+    if (postData.thumbnail) {
         let img = document.createElement("img");
         img.classList.add("post-thumb");
         img.setAttribute("src", "data:image/png;base64," + postData.thumbnail);
@@ -290,7 +317,14 @@ function createPost(postData) {
                         let upvote = document.createElement("li");
                         upvote.innerText = "...loading...";
                         resolveUserId(upvoter, getAuthToken(), user => {
-                            upvote.innerText = "@" + user.username;
+                            upvote.innerText = "";
+                            createInlineUserLink(user.username, user.id, usernameDiv => {
+                                upvote.appendChild(usernameDiv);
+                            }, errors => {
+                                for (let error of errors) {
+                                    postError(error);
+                                }
+                            });
                         });
                         upvoteList.appendChild(upvote);
                     }
@@ -325,14 +359,13 @@ function createPost(postData) {
 }
 
 function appendPost(postData) {
-    let feed = document.getElementById("feed");
     if (! feed) {
         postError("Could not find feed on page!");
         return;        
     }
     let post = createPost(postData);
     feed.appendChild(post);
-
+    return(post);
 }
 
-export {setupFeed, updateAllPostUpvotes};
+export {setupFeed, updateAllPostUpvotes, appendPost, userHasUpvotedPost, updateVoteDiv};

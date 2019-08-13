@@ -2,6 +2,7 @@ import {removeChildren} from "./general_tools.js";
 import { setupFeed } from "./feed.js";
 import { logoutUser } from "./login.js";
 import { setError } from "./errors.js";
+import { createInlineUserLink } from "./user.js";
 
 function getMain() {
     return document.querySelector("[role=main]");
@@ -40,7 +41,7 @@ function postError(errormessage) {
     console.error(errormessage);
 }
 
-function setSignedInUser(username) {
+function setSignedInUser(username, userId) {
     let nav = document.getElementById("nav");
     if (!nav) {
         postError("couldn't find nav");
@@ -89,11 +90,14 @@ function setSignedInUser(username) {
         icon.classList.add("material-icons");
         icon.innerText = "person";
         userLi.appendChild(icon);
-
-        let usernameDiv = document.createElement("div");
-        usernameDiv.classList.add("username");
-        usernameDiv.appendChild(document.createTextNode(username));
-        userLi.appendChild(usernameDiv);
+        createInlineUserLink(username, userId, usernameDiv => {
+            usernameDiv.classList.add("username");
+            userLi.appendChild(usernameDiv);
+        }, errors => {
+            for (let error of errors) {
+                postError(error);
+            }
+        });
 
         navlist.insertBefore(userLi, navlist.firstChild);
         return userLi;
@@ -106,9 +110,15 @@ function setSignedInUser(username) {
         icon.classList.add("material-icons");
         icon.innerText = "person";
         userLi.appendChild(icon);
-        let usernameDiv = document.createElement("div");
+        createInlineUserLink(username, userId, usernameDiv => {
+            usernameDiv.classList.add("username");
+            userLi.appendChild(usernameDiv);
+        }, errors => {
+            for (let error of errors) {
+                postError(error);
+            }
+        });
         usernameDiv.classList.add("username");
-        usernameDiv.appendChild(document.createTextNode(username));
         userLi.appendChild(usernameDiv);
         return userLi;
     }

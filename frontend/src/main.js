@@ -8,6 +8,7 @@
 import {setupLogin} from './login.js';
 import {setupFeed} from './feed.js';
 import {setApiUrl} from './general_tools.js';
+import {setupPostButton} from './post.js';
 
 // your app must take an apiUrl as an argument --
 // this will allow us to verify your apps behaviour with 
@@ -17,6 +18,7 @@ function initApp(apiUrl) {
   setApiUrl(apiUrl);
   setupLogin();
   setupFeed();
+  setupPostButton();
 }
 
 export default initApp;

@@ -12,6 +12,7 @@ function createError(err, id) {
     let closeIcon = document.createElement("i");
     closeIcon.innerText = "close";
     closeIcon.classList.add("material-icons");
+    closeIcon.classList.add("user-close-icon");
     closeIcon.addEventListener("click", (ev) => {
         //console.log(ev);
         ev.target.parentNode.remove();

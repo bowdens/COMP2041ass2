@@ -10,6 +10,10 @@ function getAuthToken() {
     return authToken;
 }
 
+function getUserInfo() {
+    return userInfo;
+}
+
 function createLoginDiv() {
     let div = document.createElement("div");
     div.id = "login";
@@ -226,8 +230,18 @@ function clickLogin() {
     verifyLogin(username, password, (token) => {
         console.log("token: " + token);
         authToken = token;
+
+        sendRequestToBackend("/user/", "get", {}, null, null, getAuthToken())
+        .then(response => response.json())
+        .then(json => {
+            userInfo = json;
+            console.log("user");
+            console.log(userInfo);
+            setSignedInUser(userInfo.username, userInfo.id)
+            document.querySelector("h3.feed-title").innerText = userInfo.name + "'s feed";
+        });
+
         setupFeed();
-        console.log(setSignedInUser(username));
         clearMain();
     }, (errors) => {
         for (let error of errors) {
@@ -430,12 +444,28 @@ function matching_passwords(pass1, pass2) {
 function setupLogin(url) {
     applyEventListenerToSelector("[data-id-login]", "click", toggleLoginPrompt);
     applyEventListenerToSelector("[data-id-signup]", "click", toggleSignupPrompt);
+
+    /*
+     * setup the logo to refresh the posts on page
+     * and clear anything from main
+     * essentially refresh the page 
+     */
+    let logo = document.getElementById("logo");
+    if (!logo) {
+        postError("Unexpected error: Did not find logo");
+    } else {
+        logo.addEventListener("click", () => {
+            clearMain();
+            setupFeed();
+        });
+    }
 }
 
 function logoutUser() {
     authToken = null;
+    userInfo = null;
     clearMain();
     setupFeed();
 }
 
-export {setupLogin, getAuthToken, logoutUser};
+export {setupLogin, getAuthToken, logoutUser, getUserInfo};
