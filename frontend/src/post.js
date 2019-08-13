@@ -188,7 +188,11 @@ function togglePostArea() {
 
 function setupPostButton() {
     let postButton = document.querySelector("div.feed-header button.button.button-secondary");
-    postButton.addEventListener("click", togglePostArea);
+    if (postButton) {
+        postButton.addEventListener("click", togglePostArea);
+    } else {
+        postError("Could not find postButton to set eventListener");
+    }
 }
 
 export {setupPostButton};

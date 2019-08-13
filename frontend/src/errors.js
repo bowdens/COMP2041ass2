@@ -25,6 +25,11 @@ function createError(err, id) {
 
 function setError(elem, err, id) {
     let errid = "errormsg-" + id;
+    if (elem === null) {
+        console.log("error: " + err);
+        console.error("Element supplied for error was null");
+        return;
+    }
     for (let child of elem.children) {
         if (child.id === errid) {
             for (let grandchild of child.children) {

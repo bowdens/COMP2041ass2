@@ -9,7 +9,10 @@ function makeInlineUserLink(username, userId) {
     userDiv.classList.add("inline-user-link");
     userDiv.classList.add("clickable");
     userDiv.setAttribute("userId", userId);
-    userDiv.innerText = "@" + username;
+    let authorNode = document.createElement("span");
+    authorNode.setAttribute("data-id-author", username);
+    authorNode.innerText = username;
+    userDiv.appendChild(authorNode);
     userDiv.addEventListener("click", () => {
         leaveHomeFeed();
         getAndCreateUserDiv(userId);

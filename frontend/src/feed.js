@@ -31,7 +31,12 @@ function extendFeed() {
         clearFeed();
         nextPost = 0;
         currentPost = 0;
-        document.querySelector("h3.feed-title").innerText = "Popular Posts";
+        let elem = document.querySelector("h3.feed-title");
+        if (elem) {
+            elem.innerText = "Popular Posts";
+        } else {
+            postError("Could not find feed title to update!");
+        }
         loadFeed("/post/public", {});
     } else {
         currentPost = nextPost;
@@ -168,7 +173,6 @@ function createPost(postData) {
     let voteDiv = document.createElement("div");
     voteDiv.classList.add("vote");
     voteDiv.classList.add("post-grid-vote")
-    voteDiv.setAttribute("data-id-upvotes", postData.meta.upvotes.length);
     let voteContainer = document.createElement("div");
     voteContainer.classList.add("vote-container");
     let upvoteIcon = document.createElement("i");
@@ -179,6 +183,7 @@ function createPost(postData) {
     voteContainer.appendChild(document.createElement("br"));
     let upvoteCount = document.createElement("div");
     upvoteCount.classList.add("upvote-count");
+    upvoteCount.setAttribute("data-id-upvotes", postData.meta.upvotes.length);
     upvoteCount.innerText = getUpvoteText(postData.meta.upvotes.length);
     voteContainer.appendChild(upvoteCount);
     upvoteIcon.addEventListener("click", () => upvotePost(postData.id, voteDiv));
@@ -189,7 +194,7 @@ function createPost(postData) {
     let postTitle = document.createElement("h4");
     postTitle.classList.add("post-title");
     postTitle.classList.add("alt-text");
-    postTitle.setAttribute("data-id-title", '');
+    postTitle.setAttribute("data-id-title", postData.title);
     postTitle.innerText = postData.title;
     titleDiv.appendChild(postTitle);
 
@@ -201,9 +206,10 @@ function createPost(postData) {
     metaDiv.classList.add("post-grid-meta");
     let authorP = document.createElement("p");
     authorP.classList.add("post-author");
-    authorP.setAttribute("data-id-author", postData.meta.author);
-    authorP.appendChild(document.createTextNode("Posted by "));
-    let loadingNode = document.createTextNode("@" + postData.meta.author);
+    authorP.appendChild(document.createTextNode("Posted by @"));
+    let loadingNode = document.createElement("span");
+    loadingNode.setAttribute("data-id-author", postData.meta.author);
+    loadingNode.innerText = postData.meta.author;
     if (getAuthToken() !== null) {
         authorP.appendChild(loadingNode);
         createInlineUserLink(postData.meta.author, null, usernameDiv => {
