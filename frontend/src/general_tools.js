@@ -43,6 +43,7 @@ function sendRequestToBackend(endpoint, method, _headers={}, body=null, query = 
     }
     if (authToken) {
         headers["Authorization"] = "Token " + authToken;
+        console.log(headers["Authorization"]);
     }
     for (let key in _headers) {
         headers[key] = _headers[key];
@@ -61,11 +62,12 @@ function sendRequestToBackend(endpoint, method, _headers={}, body=null, query = 
 
     }
 
+    /*
     console.log("making " + method + " request to " + apiUrl + endpoint + queryString + ", with headers:");
     console.log(headers);
     console.log("and body: ");
     console.log(body);
-
+    */
     if (method.toLowerCase() === "get" || method.toLowerCase() === "HEAD") {
         if (body !== null) {
             postError("Body must be null for a head or a get request");

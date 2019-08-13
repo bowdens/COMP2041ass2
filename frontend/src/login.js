@@ -10,6 +10,26 @@ function getAuthToken() {
     return authToken;
 }
 
+function updateUserInfo(callback) {
+    if (getAuthToken() == null) {
+        userInfo = null
+        if (callback) {
+            callback(userInfo);
+        }
+    } else {
+        sendRequestToBackend("/user/", "get", {}, null, null, getAuthToken())
+        .then(response => response.json())
+        .then(json => {
+            userInfo = json;
+            console.log("user");
+            console.log(userInfo);
+            if (callback) {
+                callback(userInfo);
+            }
+        });
+    }
+}
+
 function getUserInfo() {
     return userInfo;
 }
@@ -468,4 +488,4 @@ function logoutUser() {
     setupFeed();
 }
 
-export {setupLogin, getAuthToken, logoutUser, getUserInfo};
+export {setupLogin, getAuthToken, logoutUser, getUserInfo, updateUserInfo};

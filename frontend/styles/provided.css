@@ -208,7 +208,7 @@ footer > * {
   color: black;
   height: 100%;
   float: left;
-  transform: translateY(30%);
+  transform: translateY(50%);
 }
 #signed-in-user .username {
   font-size: 16px;
@@ -249,7 +249,43 @@ footer > * {
   text-decoration: underline var(--reddit-blue);
 }
 
-.user-close-icon {
+.user-title-container {
+  display: grid;
+  grid-template-columns: 250px auto 250px;
+  background-color: var(--reddit-orange);
+  color: white;
+  width: 100%;
+}
+
+.user-title-container span,h3 {
+  width: 100%;
+  max-width: 100%;
+}
+
+.user-title-container h3 {
+  grid-column: 2;
+}
+
+.user-close-span {
   position: relative;
   top: 50%;
+  transform: translateY(-40%);
+  float: right;
+  grid-column: 3;
+}
+
+.user-close-span i {
+  transform: translateY(20%);
+}
+
+.user-follow-span {
+  float: left;
+  position: relative;
+  top: 50%;
+  transform: translateY(-40%);
+  grid-column: 1;
+}
+
+.user-follow-span i {
+  transform: translateY(20%);
 }
