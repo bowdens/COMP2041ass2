@@ -18,6 +18,8 @@ function joinHomeFeed() {
 }
 
 function setupFeed() {
+    console.log("seting up feed");
+    feed = document.getElementById("feed");
     clearFeed();
     nextPost = 0;
     currentPost = 0;
@@ -62,6 +64,7 @@ function loadFeed(endpoint, headers) {
     .then(feed => {
         console.log(feed);
         if (! feed) {
+            console.log("Feed was empty, returning");
             return;
         }
         nextPost += feed.posts.length;
@@ -163,6 +166,8 @@ function toggleExtra(extraDiv) {
 }
 
 function createPost(postData) {
+    console.log("creating post for following data");
+    console.log(postData);
     let postLi = document.createElement("li");
     postLi.classList.add("post");
     postLi.setAttribute("data-id-post", postData.id);
@@ -440,11 +445,15 @@ function createPost(postData) {
 }
 
 function appendPost(postData) {
+    console.log("appending post " + postData.id);
     if (! feed) {
+        console.log("failing due to lack of feed");
         postError("Could not find feed on page!");
         return;        
     }
     let post = createPost(postData);
+    console.log("post ready to be appended ");
+    console.log(post);
     feed.appendChild(post);
     return(post);
 }

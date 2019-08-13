@@ -1,2 +1,328 @@
-25/07/19     18:00   18:15   put the first real entry in diary.txt (delete this line!)
+commit 36b4255c181e085b79ee6bfe70f61344fe11d386
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Tue Aug 13 21:11:29 2019 +1000
 
+    added some checks for null elements, moved around data-ids
+
+commit 759044cc74e6299ad5d0a82ee42e6e0e35ef1a69
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Tue Aug 13 20:46:40 2019 +1000
+
+    finished nearly all of level 3, just missing updating a post and searching
+
+commit 8030ab4eb8ef6ea09a71ad7557a298b1a8577aef
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Tue Aug 13 18:46:10 2019 +1000
+
+    fixed image posts
+
+commit 84801ec37642efd664d83d1ca851a36e565af34c
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Tue Aug 13 17:46:13 2019 +1000
+
+    implemented adding user comments
+
+commit 36979936a70cb977b53edb06556b5f6733bdbdfa
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Tue Aug 13 17:14:57 2019 +1000
+
+    implemented infinite scrolling
+
+commit 70038675478be9b9cb56a7aa88145e9166b39992
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Tue Aug 13 16:41:03 2019 +1000
+
+    implemented all of level 2 (except profile; to be dded)
+
+commit 2618db30617733721e60b628bee3e1a59e7cf5bf
+Merge: 0ab1d0b b8c3db7
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Mon Aug 12 21:57:38 2019 +1000
+
+    Merge branch 'master' of https://github.com/COMP2041UNSW/seddit
+
+commit 0ab1d0b06b8e5133f41a7b9c6168ee4593da9b86
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Mon Aug 12 21:55:22 2019 +1000
+
+    lots of refactoring, implemented half of level 2. showing upvotes, showing comments, and upvoting stuff.
+
+commit b8c3db7c97aeee49643c3557ab4f3511cd54b582
+Author: Alex Hinds <alex.hinds141@gmail.com>
+Date:   Mon Aug 12 17:38:38 2019 +1000
+
+    fix: Remove innerHTML test
+
+commit 7041d6225e5d42616bd3720be40de13b6fb835ad
+Author: Andrew Taylor <andrewt@unsw.edu.au>
+Date:   Mon Aug 12 11:56:55 2019 +1000
+
+    changes to frontend server to assist script for demo sessions
+
+commit 138473fdebbb4ed4b66766402dd2b837aa265dc0
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Sun Aug 11 14:36:06 2019 +1000
+
+    added signup and finished off level 1
+
+commit 8ebc0358ff67df9b9cc772fb980416263b18ed30
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Sun Aug 11 01:59:07 2019 +1000
+
+    implemented signing in and user based feeds, still need to do registration to complete level 1
+
+commit 9bfcb43febbfa3683454417c5e207a1f45e712de
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Sat Aug 10 18:08:38 2019 +1000
+
+    finished styling for subset 0. no more i promise
+
+commit dec4cb8dc6652d806b9e3e38f1faeb8eacfe897c
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Sat Aug 10 15:46:45 2019 +1000
+
+    added more content to posts, better styling, added data attributes
+
+commit 5bed2cd3b804c0addb96a248d6b78179fb133551
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Thu Aug 8 23:37:18 2019 +1000
+
+    worked on and completed all sections of level 0
+
+commit cb8be827831622493d5f6a41f97b7d1598d2f78f
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Wed Aug 7 20:57:21 2019 +1000
+
+    byebye backend tests
+
+commit aa744636cecfd7aff7456c1a9d0a695ccdd5299c
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Wed Aug 7 20:51:50 2019 +1000
+
+    implemented a mostly working login and sign up in accordance with level 0
+
+commit ce4d4ca93e35550698b0ddd46ce7a5a2cffccc01
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Tue Aug 6 17:12:16 2019 +1000
+
+    added virtualenv to gitignore
+
+commit f5ffde557770ba900bbab2e137b693ff7719a203
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Sun Aug 4 21:44:09 2019 +1000
+
+    fixed shared db connection accross multiple threads
+
+commit 66f72bee02882c9858d0cc8b6cc620c4aed8d2c7
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Sun Aug 4 21:11:52 2019 +1000
+
+    fixed incorrect behaviour in spec for POST /post
+
+commit 4428b0f6b5f6113e7ba4b83fbf258328228fdf42
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Sun Aug 4 21:09:07 2019 +1000
+
+    fixed dummy/post
+
+commit 6435dbd2d13476f7f97259bb6511c008e4f047e0
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Sun Aug 4 20:40:42 2019 +1000
+
+    killed profile pictures
+
+commit f39815b003ef58d376721da625c203696077f0a0
+Merge: de07628 da3034b
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Sun Aug 4 18:52:37 2019 +1000
+
+    Merge pull request #10 from COMP2041UNSW/add-favicon.ico
+    
+    add favicon.ico
+
+commit da3034b5a88a7e3853ec448d8969ef52e319e18a
+Author: Andrew Taylor <andrewt@unsw.edu.au>
+Date:   Sun Aug 4 18:50:16 2019 +1000
+
+    add favicon.ico
+
+commit de07628d6fffc76196849c00c0cd7f8b935940fc
+Merge: f8d3a55 7ff97dc
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Sun Aug 4 14:12:16 2019 +1000
+
+    Merge pull request #9 from COMP2041UNSW/frontend-innerhtml-test-fix
+    
+    Fix: innerHTML call is being called by Mocha, adjust tests
+
+commit 7ff97dc0e5e8a7e83f8215ef458bbc89d2120f2f
+Author: Alex Hinds <alex.hinds141@gmail.com>
+Date:   Sun Aug 4 13:05:43 2019 +1000
+
+    Fix: innerHTML call is being called by Mocha, adjust tests
+
+commit f8d3a55ea42839d20f4e0eda1d9cfb765c120f48
+Merge: 67bf8a2 dd4dbf2
+Author: Adam <ad-t@users.noreply.github.com>
+Date:   Sun Aug 4 11:48:08 2019 +1000
+
+    Merge pull request #8 from COMP2041UNSW/db_fix
+    
+    fixed spec typo + user_id 0 in db
+
+commit dd4dbf2ea0047078f93a86bfabfd3cd06596826f
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Sat Aug 3 22:06:00 2019 +1000
+
+    cleaned up test db enteries
+
+commit 6a761941e0ddd54b494b879559cea7c804da1665
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Sat Aug 3 20:57:15 2019 +1000
+
+    fixed spec typo + user_id 0 in db
+
+commit 67bf8a272c8c26c0ac0b74e1fa28955d62010707
+Merge: 8be4599 f4c7b86
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Sat Aug 3 20:06:14 2019 +1000
+
+    Merge branch 'master' of github.com:COMP2041UNSW/seddit
+
+commit 8be45997cf72e174ae9719f7d777a0807ef0da0a
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Sat Aug 3 20:05:59 2019 +1000
+
+    updated docs
+
+commit f4c7b86220f51e448cce4ebba259911ec6afd05b
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Wed Jul 31 22:16:13 2019 +1000
+
+    Update user.py
+
+commit 590df1647d2fc49efb9874266e52a5865deaf5fd
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Wed Jul 31 22:13:50 2019 +1000
+
+    added docs
+
+commit 070344a104f5ddae8e11da7d47e63980da914006
+Merge: 053fb70 d8cb40f
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Wed Jul 31 22:08:05 2019 +1000
+
+    Merge pull request #7 from COMP2041UNSW/fixed_published_int_cast
+    
+    fixed casting issue, also added username to GET /user
+
+commit d8cb40fc7aaad7b587ae99da941111e06894791c
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Wed Jul 31 22:04:46 2019 +1000
+
+    fixed casting issue, also added username to GET /user
+
+commit 053fb706a9b5ee4c5602c087ad1ea5e22dcd52cd
+Author: Alex Hinds <alex.hinds141@gmail.com>
+Date:   Wed Jul 31 21:15:19 2019 +1000
+
+    Fix for post/public route
+
+commit 65bc404e3098214304ec2c65a8b5a158d6e402e5
+Merge: b0fe71a 11c8733
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Wed Jul 31 14:18:23 2019 +1000
+
+    Merge pull request #5 from COMP2041UNSW/search_functionality_spec_clarification
+    
+    Made the intended search functionality more clear in the assignment spec
+
+commit 11c8733fc9d614490ede4879128888e7c01310c8
+Author: Adam Tizzone <ad-t@users.noreply.github.com>
+Date:   Wed Jul 31 12:57:12 2019 +1000
+
+    Made the intended search functionality more clear in the assignment spec
+
+commit b0fe71a681ee3d362e33dc9cac37abebfef19154
+Merge: b82b06e 432800b
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Tue Jul 30 22:01:04 2019 +1000
+
+    Merge pull request #4 from COMP2041UNSW/fix_overwriting_title_with_image_during_post_edit
+    
+    Fixed bug causing title to be overwritten with the image when updatin…
+
+commit 432800b1942ec95152d84fe60713f5d137a9ce38
+Author: Adam T <ad-t@users.noreply.github.com>
+Date:   Tue Jul 30 22:00:20 2019 +1000
+
+    Allow dummy user to edit the title of posts made by the dummy user
+
+commit 20907fbbd795efc7de65459d97244b981771148d
+Author: Adam T <ad-t@users.noreply.github.com>
+Date:   Tue Jul 30 21:52:08 2019 +1000
+
+    Fixed bug causing title to be overwritten with the image when updating a post
+
+commit b82b06ef792471d8654c12f8d1fce333953a96bc
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Tue Jul 30 13:06:45 2019 +1000
+
+    fixed wrong methods
+
+commit 29ecdf58b75dabc773c35ac64a8304c48af1f674
+Author: Zain Afzal <zain.afz@gmail.com>
+Date:   Tue Jul 30 13:00:26 2019 +1000
+
+    fixed /latest endpoint and #profile=<name>
+
+commit f30f216689efaac721564de4c9af12d53623d848
+Author: Sam-OB <45574717+Sam-OB@users.noreply.github.com>
+Date:   Mon Jul 29 12:04:06 2019 +1000
+
+    Added some "logged in"s before user
+
+commit 65b0f8847c02e8932b64c4b6f271b4ed85875a4d
+Merge: 50a8c3a acb0e4b
+Author: Alex Hinds <alex.hinds141@gmail.com>
+Date:   Sun Jul 28 20:37:09 2019 +1000
+
+    Merge pull request #3 from COMP2041UNSW/post_vote_db_reference_fix
+    
+    Added missing post tests, fixed incorrect db column referencing issue
+
+commit acb0e4b26b66e0fc5128656237aeb210a0af1c53
+Author: Adam Tizzone <ad-t@users.noreply.github.com>
+Date:   Sun Jul 28 17:05:22 2019 +1000
+
+    Added missing post tests, fixed incorrect db column referencing issue
+
+commit 50a8c3ada58e9103203462abb07dde4e028072e6
+Author: Andrew Taylor <andrewt@unsw.edu.au>
+Date:   Sat Jul 27 19:19:46 2019 +1000
+
+    add crossorigin="use-credentials" to loading of index.js in frontend/index.html
+
+commit 83c92efa5717af0301be9f3b1cd82879c6d90b10
+Author: Andrew Taylor <andrewt@unsw.edu.au>
+Date:   Sat Jul 27 11:16:50 2019 +1000
+
+    Fix typo in documentation
+
+commit af5ebde99c46e27bdb28734c958f37da33e47adb
+Author: Andrew Taylor <andrewt@unsw.edu.au>
+Date:   Fri Jul 26 21:38:12 2019 +1000
+
+    correct virtualenv command in backend/README.md
+
+commit b79702bdcb21810d4af10d46f9a92112ab7634c5
+Author: Andrew Taylor <andrewt@unsw.edu.au>
+Date:   Fri Jul 26 21:24:14 2019 +1000
+
+    correct reference to run.py to backend_server.py and references to server.py to frontend_server.py
+
+commit a9ba5d6aacafc927c6abf619c8ee404b51abf506
+Author: Andrew Taylor <andrewt@unsw.edu.au>
+Date:   Fri Jul 26 17:19:41 2019 +1000
+
+    initial commit

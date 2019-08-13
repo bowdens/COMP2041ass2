@@ -1,9 +1,10 @@
 // workaround at 9:30 the night of submission because i implemented the entire thing assuming i'd have the given index.html page and not the blank one
 
-let root = document.getElementById("root");
 
 function setupPage() {
     // yes i'm using innerHTML, sue me
+    let root = document.getElementById("root");
+    console.log(root);
     root.innerHTML = `
         <header class='banner' id="nav">
             <h1 id="logo" class="flex-center">Seddit</h1>

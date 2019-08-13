@@ -415,12 +415,12 @@ function verifySignup(name, username, email, password, repeatpassword, success, 
         errors.push("Password must have at least one uppercase letter, and at least one digit");
     }
 
-    sendPostToBackend("/auth/signup", "post", {}, {
+    sendRequestToBackend("/auth/signup", "post", {}, {
         username: username,
         password: password,
         email: email,
         name: name
-    })
+    }, {}, getAuthToken())
     .then(response => {
         if (response.status === 400) {
             errors.push("Signup failed: Internal error: Malformed Request");
