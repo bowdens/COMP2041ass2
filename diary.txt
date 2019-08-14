@@ -1,3 +1,15 @@
+commit 38a9dfd24e23f8348149c302b717d9d44caa2a44
+Author: Tom Bowden <tomfbowden12@gmail.com>
+Date:   Tue Aug 13 21:58:01 2019 +1000
+
+    last minute fixes
+
+commit 2d2f366513d683de88c3c62fbb99662f9d5667cd
+Author: bowdens <tomfbowden12@gmail.com>
+Date:   Tue Aug 13 21:35:16 2019 +1000
+
+    added last minute workaround to make things work
+
 commit 36b4255c181e085b79ee6bfe70f61344fe11d386
 Author: bowdens <tomfbowden12@gmail.com>
 Date:   Tue Aug 13 21:11:29 2019 +1000
